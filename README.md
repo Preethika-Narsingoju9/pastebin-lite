@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pastebin-Lite 🚀
 
-## Getting Started
+**Modern Pastebin clone** - Next.js 15 + Upstash Redis + Vercel  
+**Live:** https://pastebin-lite.vercel.app
 
-First, run the development server:
+## ✨ Features
+- ✅ **Real-time pastes** with unique IDs
+- ✅ **TTL (10 sec)** - Auto-expire (Redis)
+- ✅ **Responsive UI** - Tailwind CSS
+- ✅ **API Routes** - `/api/pastes` + `/api/pastes/[id]`
+- ✅ **Production-ready** - Vercel + Redis
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🛠 Tech Stack
+Frontend: Next.js 15 (App Router) + TypeScript + Tailwind
+Backend: Next.js API Routes + Upstash Redis (Serverless)
+Deployment: Vercel
+Testing: Postman
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Live Demo
+**Create paste:** https://pastebin-lite.vercel.app  
+**API Health:** https://pastebin-lite.vercel.app/api/healthz  
+**API Pastes:** https://pastebin-lite.vercel.app/api/pastes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔧 Environment Variables
+UPSTASH_REDIS_REST_URL=https://musical-sheepdog-52737.upstash.io
+UPSTASH_REDIS_REST_TOKEN=Ac4BAAIncDFmZjQ4NTA3MzVjNDI0YTQ4OTFlMjhkN2QzNGViMmM0ZHAxNTI3Mzc
+NEXT_PUBLIC_BASE_URL=https://pastebin-lite.vercel.app
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧪 Test Flow
+POST /api/pastes → {"content": "Hello World"}
 
-## Learn More
+GET /p/[id] → Shows paste
 
-To learn more about Next.js, take a look at the following resources:
+Redis TTL 10s → Auto-delete
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+GET /p/[id] → 404 Gone ✅
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📁 Project Structure
+app/
+├── api/pastes/[id]/route.ts # GET/DELETE paste
+├── api/pastes/route.ts # POST new paste
+├── api/healthz/route.ts # Redis health
+├── p/[id]/page.tsx # View paste page
+├── page.tsx # Home (create form)
+lib/
+├── redis.ts # Redis client
+├── pastes.ts # Paste CRUD
+├── time.ts # TTL utils
 
-## Deploy on Vercel
+## 🌐 Deployment
+1. **Fork/Clone** this repo
+2. **Vercel** → Import GitHub repo
+3. **Add 3 env vars** (above)
+4. **Deploy** → Live in 60s!
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🎯 Built For
+**Full-Stack Portfolio** - Java/Next.js developer  
+**Job Interviews** - Live demo + production Redis  
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+**Made with VScode GitHub vercel** | Next.js 15 + Upstash Redis
+
+
