@@ -37,6 +37,59 @@
 
 
 
+// import type { Metadata } from "next";
+// import "./globals.css";
+
+// export const metadata: Metadata = {
+//   title: "Pastebin Lite",
+//   description: "Demo Pastebin project",
+// };
+
+// export default function RootLayout({
+//   children,
+// }: Readonly<{
+//   children: React.ReactNode;
+// }>) {
+//   return (
+//     <html lang="en">
+//       <body className="antialiased">
+//         {children}
+//       </body>
+//     </html>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+// app/layout.tsx
+// import { Inter, Fira_Code } from 'next/font/google';
+
+// const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
+// const firaMono = Fira_Code({ subsets: ['latin'], variable: '--font-mono' });
+
+// export default function RootLayout({ children }: { children: React.ReactNode }) {
+//   return (
+//     <html lang="en">
+//       <body className={`${inter.variable} ${firaMono.variable} antialiased`}>
+//         {children}
+//       </body>
+//     </html>
+//   );
+// }
+
+
+
+
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -47,9 +100,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <body className="antialiased">

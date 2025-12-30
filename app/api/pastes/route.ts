@@ -214,6 +214,105 @@
 
 
 
+// import { NextResponse } from "next/server";
+// import { redis } from "@/lib/redis";
+// import { nanoid } from "nanoid";
+
+// export const runtime = "nodejs";
+
+// export async function POST(request: Request) {
+//   try {
+//     const { content, ttl, maxViews } = await request.json();
+
+//     if (!content) {
+//       return NextResponse.json(
+//         { error: "Content is required" },
+//         { status: 400 }
+//       );
+//     }
+
+//     const id = nanoid(8);
+
+//     await redis.set(`paste:${id}`, content);
+
+//     if (ttl) {
+//       await redis.expire(`paste:${id}`, Number(ttl));
+//     }
+
+//     if (maxViews) {
+//       await redis.set(`views:${id}`, Number(maxViews));
+//     }
+
+//     return NextResponse.json({
+//       id,
+//       url: `/p/${id}`,
+//     });
+//   } catch (error) {
+//     console.error("PASTE CREATE ERROR:", error);
+//     return NextResponse.json(
+//       { error: "Internal Server Error" },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+
+
+
+
+// import { NextResponse } from "next/server";
+// import { redis } from "@/lib/redis";
+// import { nanoid } from "nanoid";
+
+// export const runtime = "nodejs";
+
+// export async function POST(request: Request) {
+//   try {
+//     // Destructure using the exact names your frontend sends
+//     const { content, ttl_seconds, max_views } = await request.json();
+
+//     if (!content) {
+//       return NextResponse.json(
+//         { error: "Content is required" },
+//         { status: 400 }
+//       );
+//     }
+
+//     const id = nanoid(8);
+
+//     // Store the paste content
+//     await redis.set(`paste:${id}`, content);
+
+//     // Apply TTL if provided
+//     if (ttl_seconds) {
+//       await redis.expire(`paste:${id}`, Number(ttl_seconds));
+//     }
+
+//     // Apply max views if provided
+//     if (max_views) {
+//       await redis.set(`views:${id}`, Number(max_views));
+//     }
+
+//     return NextResponse.json({
+//       id,
+//       url: `/p/${id}`,
+//     });
+//   } catch (error) {
+//     console.error("PASTE CREATE ERROR:", error);
+//     return NextResponse.json(
+//       { error: "Internal Server Error" },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+
+
+
+
+
 import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 import { nanoid } from "nanoid";
@@ -222,7 +321,7 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    const { content, ttl, maxViews } = await request.json();
+    const { content, ttl_seconds, max_views } = await request.json();
 
     if (!content) {
       return NextResponse.json(
@@ -233,14 +332,17 @@ export async function POST(request: Request) {
 
     const id = nanoid(8);
 
+    // Save paste
     await redis.set(`paste:${id}`, content);
 
-    if (ttl) {
-      await redis.expire(`paste:${id}`, Number(ttl));
+    // TTL
+    if (ttl_seconds) {
+      await redis.expire(`paste:${id}`, Number(ttl_seconds));
     }
 
-    if (maxViews) {
-      await redis.set(`views:${id}`, Number(maxViews));
+    // Max views
+    if (max_views) {
+      await redis.set(`views:${id}`, Number(max_views));
     }
 
     return NextResponse.json({
@@ -255,5 +357,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
-

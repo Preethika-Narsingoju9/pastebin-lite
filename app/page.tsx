@@ -68,45 +68,46 @@
 
 
 
-'use client';
 
-import { useState } from 'react';
+"use client";
+
+import { useState } from "react";
 
 export default function Home() {
-  const [content, setContent] = useState('');
-  const [ttlSeconds, setTtlSeconds] = useState('');
-  const [maxViews, setMaxViews] = useState('');
+  const [content, setContent] = useState("");
+  const [ttlSeconds, setTtlSeconds] = useState("");
+  const [maxViews, setMaxViews] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState('');
+  const [result, setResult] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setResult('');
+    setResult("");
 
     try {
-      const response = await fetch('/api/pastes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/pastes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           content,
-          ttl_seconds: ttlSeconds ? parseInt(ttlSeconds) : undefined,
-          max_views: maxViews ? parseInt(maxViews) : undefined,
+          ttl_seconds: ttlSeconds ? Number(ttlSeconds) : undefined,
+          max_views: maxViews ? Number(maxViews) : undefined,
         }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setResult(`✅ Paste created! Share: ${data.url}`);
-        setContent('');
-        setTtlSeconds('');
-        setMaxViews('');
+        setResult(`✅ Paste created! ${window.location.origin}${data.url}`);
+        setContent("");
+        setTtlSeconds("");
+        setMaxViews("");
       } else {
         setResult(`❌ Error: ${data.error}`);
       }
-    } catch (err) {
-      setResult('❌ Network error');
+    } catch (error) {
+      setResult("❌ Network error");
     } finally {
       setLoading(false);
     }
@@ -119,13 +120,20 @@ export default function Home() {
           <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
             Pastebin-Lite
           </h1>
-          <p className="text-xl text-gray-600">Share text instantly. Simple. Fast. Secure.</p>
+          <p className="text-xl text-gray-600">
+            Share text instantly. Simple. Fast. Secure.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/50">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/50"
+        >
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Paste Content</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Paste Content
+              </label>
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
@@ -138,25 +146,30 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">TTL (seconds)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  TTL (seconds)
+                </label>
                 <input
                   type="number"
                   value={ttlSeconds}
                   onChange={(e) => setTtlSeconds(e.target.value)}
                   placeholder="3600"
-                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   min="1"
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Max Views</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Max Views
+                </label>
                 <input
                   type="number"
                   value={maxViews}
                   onChange={(e) => setMaxViews(e.target.value)}
                   placeholder="10"
-                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   min="1"
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -164,9 +177,9 @@ export default function Home() {
             <button
               type="submit"
               disabled={loading || !content.trim()}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 transition-all duration-200 shadow-lg"
             >
-              {loading ? 'Creating...' : 'Create Paste'}
+              {loading ? "Creating..." : "Create Paste"}
             </button>
           </div>
         </form>
@@ -178,7 +191,7 @@ export default function Home() {
               onClick={() => navigator.clipboard.writeText(result)}
               className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600"
             >
-              Copy URL
+              Copy
             </button>
           </div>
         )}
