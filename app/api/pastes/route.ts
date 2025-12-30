@@ -121,46 +121,91 @@
 
 
 
+// import { NextResponse } from "next/server";
+// import { savePaste } from "@/lib/pastes";
+
+// export async function POST(req: Request) {
+//   try {
+//     const body = await req.json();
+//     const { content, ttl_seconds, max_views } = body;
+
+//     // VALIDATION
+//     if (!content || typeof content !== "string" || content.trim().length === 0) {
+//       return NextResponse.json({ error: "Content is required" }, { status: 400 });
+//     }
+//     if (ttl_seconds !== undefined && (!Number.isInteger(ttl_seconds) || ttl_seconds < 1)) {
+//       return NextResponse.json({ error: "ttl_seconds must be >= 1" }, { status: 400 });
+//     }
+//     if (max_views !== undefined && (!Number.isInteger(max_views) || max_views < 1)) {
+//       return NextResponse.json({ error: "max_views must be >= 1" }, { status: 400 });
+//     }
+
+//     const id = "paste-" + Date.now();
+//     const nowMs = Date.now();
+    
+//     // FIX: Store NUMBER or null properly
+//     const remainingViews = max_views ? Number(max_views) : null;
+    
+//     await savePaste(id, {
+//       content: content.trim(),
+//       created_at: nowMs,
+//       remaining_views: remainingViews,  // NUMBER not null
+//       expires_at: ttl_seconds ? nowMs + (ttl_seconds * 1000) : null,
+//     });
+
+//     console.log("✅ POST SAVED:", id, "Views:", remainingViews);
+
+//     return NextResponse.json({
+//       id,
+//       url: `http://localhost:4000/p/${id}`
+//     }, { status: 201 });
+//   } catch (err) {
+//     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+//   }
+// }
+
+
+
+
 import { NextResponse } from "next/server";
-import { savePaste } from "@/lib/pastes";
+import { redis } from "@/lib/redis";
+import { nanoid } from "nanoid";
 
-export async function POST(req: Request) {
+export async function POST(request) {
   try {
-    const body = await req.json();
-    const { content, ttl_seconds, max_views } = body;
+    const body = await request.json();
 
-    // VALIDATION
-    if (!content || typeof content !== "string" || content.trim().length === 0) {
-      return NextResponse.json({ error: "Content is required" }, { status: 400 });
-    }
-    if (ttl_seconds !== undefined && (!Number.isInteger(ttl_seconds) || ttl_seconds < 1)) {
-      return NextResponse.json({ error: "ttl_seconds must be >= 1" }, { status: 400 });
-    }
-    if (max_views !== undefined && (!Number.isInteger(max_views) || max_views < 1)) {
-      return NextResponse.json({ error: "max_views must be >= 1" }, { status: 400 });
+    const { content, ttl, maxViews } = body;
+
+    if (!content) {
+      return NextResponse.json(
+        { error: "Content is required" },
+        { status: 400 }
+      );
     }
 
-    const id = "paste-" + Date.now();
-    const nowMs = Date.now();
-    
-    // FIX: Store NUMBER or null properly
-    const remainingViews = max_views ? Number(max_views) : null;
-    
-    await savePaste(id, {
-      content: content.trim(),
-      created_at: nowMs,
-      remaining_views: remainingViews,  // NUMBER not null
-      expires_at: ttl_seconds ? nowMs + (ttl_seconds * 1000) : null,
-    });
+    const id = nanoid(8);
 
-    console.log("✅ POST SAVED:", id, "Views:", remainingViews);
+    await redis.set(`paste:${id}`, content);
+
+    if (ttl) {
+      await redis.expire(`paste:${id}`, Number(ttl));
+    }
+
+    if (maxViews) {
+      await redis.set(`views:${id}`, Number(maxViews));
+    }
 
     return NextResponse.json({
       id,
-      url: `http://localhost:4000/p/${id}`
-    }, { status: 201 });
-  } catch (err) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+      url: `/p/${id}`,
+    });
+  } catch (error) {
+    console.error("PASTE CREATE ERROR:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
 

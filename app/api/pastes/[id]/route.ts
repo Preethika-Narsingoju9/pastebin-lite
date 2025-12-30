@@ -213,61 +213,97 @@
 
 
 
-import { NextResponse } from "next/server";
-import { loadPastes, savePaste } from "@/lib/pastes";
+// import { NextResponse } from "next/server";
+// import { loadPastes, savePaste } from "@/lib/pastes";
 
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id } = await params;
-    const pastes = await loadPastes();
-    const paste = pastes[id];
+// export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+//   try {
+//     const { id } = await params;
+//     const pastes = await loadPastes();
+//     const paste = pastes[id];
     
-    if (!paste) {
+//     if (!paste) {
+//       return NextResponse.json({ error: "Paste not found" }, { status: 404 });
+//     }
+
+//     // ✅ TEST_MODE: Deterministic time for automated tests
+//     let nowMs = Date.now();
+//     if (process.env.TEST_MODE === '1') {
+//       const testTime = req.headers.get('x-test-now-ms');
+//       if (testTime) {
+//         nowMs = Number(testTime);
+//         console.log("🧪 TEST_MODE nowMs:", nowMs);
+//       }
+//     }
+
+//     // ✅ CHECK EXPIRY (TTL)
+//     if (paste.expires_at && nowMs >= paste.expires_at) {
+//       console.log("⏰ Paste expired:", id);
+//       delete pastes[id];
+//       await savePaste(id, paste);
+//       return NextResponse.json({ error: "Paste expired" }, { status: 404 });
+//     }
+
+//     // ✅ CHECK MAX VIEWS
+//     if (paste.remaining_views !== null && paste.remaining_views <= 0) {
+//       console.log("👁️ Max views exceeded:", id);
+//       delete pastes[id];
+//       await savePaste(id, paste);
+//       return NextResponse.json({ error: "Max views exceeded" }, { status: 404 });
+//     }
+
+//     // ✅ DECREMENT VIEWS
+//     if (paste.remaining_views !== null) {
+//       paste.remaining_views -= 1;
+//       console.log("👁️ Views decremented:", id, "Remaining:", paste.remaining_views);
+//       await savePaste(id, paste);
+//     }
+
+//     console.log("✅ GET success:", id);
+
+//     return NextResponse.json({
+//       content: paste.content,
+//       remaining_views: paste.remaining_views,
+//       expires_at: paste.expires_at
+//     });
+//   } catch (err) {
+//     console.error("GET Error:", err);
+//     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+//   }
+// }
+
+
+
+import { NextResponse } from "next/server";
+import { redis } from "@/lib/redis";
+
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+
+    const content = await redis.get<string>(`paste:${id}`);
+    if (!content) {
       return NextResponse.json({ error: "Paste not found" }, { status: 404 });
     }
 
-    // ✅ TEST_MODE: Deterministic time for automated tests
-    let nowMs = Date.now();
-    if (process.env.TEST_MODE === '1') {
-      const testTime = req.headers.get('x-test-now-ms');
-      if (testTime) {
-        nowMs = Number(testTime);
-        console.log("🧪 TEST_MODE nowMs:", nowMs);
+    let remainingViews = await redis.get<number>(`views:${id}`);
+    if (remainingViews !== null) {
+      if (remainingViews <= 0) {
+        return NextResponse.json({ error: "Max views exceeded" }, { status: 404 });
       }
+      await redis.decr(`views:${id}`);
+      remainingViews -= 1;
     }
-
-    // ✅ CHECK EXPIRY (TTL)
-    if (paste.expires_at && nowMs >= paste.expires_at) {
-      console.log("⏰ Paste expired:", id);
-      delete pastes[id];
-      await savePaste(id, paste);
-      return NextResponse.json({ error: "Paste expired" }, { status: 404 });
-    }
-
-    // ✅ CHECK MAX VIEWS
-    if (paste.remaining_views !== null && paste.remaining_views <= 0) {
-      console.log("👁️ Max views exceeded:", id);
-      delete pastes[id];
-      await savePaste(id, paste);
-      return NextResponse.json({ error: "Max views exceeded" }, { status: 404 });
-    }
-
-    // ✅ DECREMENT VIEWS
-    if (paste.remaining_views !== null) {
-      paste.remaining_views -= 1;
-      console.log("👁️ Views decremented:", id, "Remaining:", paste.remaining_views);
-      await savePaste(id, paste);
-    }
-
-    console.log("✅ GET success:", id);
 
     return NextResponse.json({
-      content: paste.content,
-      remaining_views: paste.remaining_views,
-      expires_at: paste.expires_at
+      content,
+      remaining_views: remainingViews,
     });
   } catch (err) {
-    console.error("GET Error:", err);
+    console.error("GET ERROR:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
