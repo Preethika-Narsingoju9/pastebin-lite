@@ -273,15 +273,62 @@
 // }
 
 
+// import { NextResponse } from "next/server";
+// import { redis } from "@/lib/redis";
+
+// export async function GET(
+//   request: Request,
+//   context: { params: { id: string } }
+// ) {
+//   try {
+//     const { id } = context.params;
+
+//     const content = await redis.get<string>(`paste:${id}`);
+//     if (!content) {
+//       return NextResponse.json({ error: "Paste not found" }, { status: 404 });
+//     }
+
+//     let remainingViews = await redis.get<number>(`views:${id}`);
+
+//     if (remainingViews !== null) {
+//       if (remainingViews <= 0) {
+//         return NextResponse.json(
+//           { error: "Max views exceeded" },
+//           { status: 404 }
+//         );
+//       }
+//       await redis.decr(`views:${id}`);
+//       remainingViews -= 1;
+//     }
+
+//     return NextResponse.json({
+//       content,
+//       remaining_views: remainingViews,
+//     });
+//   } catch (err) {
+//     console.error("GET ERROR:", err);
+//     return NextResponse.json(
+//       { error: "Internal Server Error" },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+
+
+
 import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 
+export const runtime = "nodejs";
+
 export async function GET(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = params;
 
     const content = await redis.get<string>(`paste:${id}`);
     if (!content) {
@@ -313,3 +360,4 @@ export async function GET(
     );
   }
 }
+

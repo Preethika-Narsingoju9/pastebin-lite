@@ -167,15 +167,62 @@
 
 
 
+// import { NextResponse } from "next/server";
+// import { redis } from "@/lib/redis";
+// import { nanoid } from "nanoid";
+
+// export async function POST(request: Request) {
+//   try {
+//     const body = await request.json();
+
+//     const { content, ttl, maxViews } = body;
+
+//     if (!content) {
+//       return NextResponse.json(
+//         { error: "Content is required" },
+//         { status: 400 }
+//       );
+//     }
+
+//     const id = nanoid(8);
+
+//     await redis.set(`paste:${id}`, content);
+
+//     if (ttl) {
+//       await redis.expire(`paste:${id}`, Number(ttl));
+//     }
+
+//     if (maxViews) {
+//       await redis.set(`views:${id}`, Number(maxViews));
+//     }
+
+//     return NextResponse.json({
+//       id,
+//       url: `/p/${id}`,
+//     });
+//   } catch (error) {
+//     console.error("PASTE CREATE ERROR:", error);
+//     return NextResponse.json(
+//       { error: "Internal Server Error" },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+
+
+
+
 import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 import { nanoid } from "nanoid";
 
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-
-    const { content, ttl, maxViews } = body;
+    const { content, ttl, maxViews } = await request.json();
 
     if (!content) {
       return NextResponse.json(
@@ -208,4 +255,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
 
