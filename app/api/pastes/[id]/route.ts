@@ -273,16 +273,15 @@
 // }
 
 
-
 import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: Request,
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
+    const { id } = context.params;
 
     const content = await redis.get<string>(`paste:${id}`);
     if (!content) {
@@ -290,9 +289,13 @@ export async function GET(
     }
 
     let remainingViews = await redis.get<number>(`views:${id}`);
+
     if (remainingViews !== null) {
       if (remainingViews <= 0) {
-        return NextResponse.json({ error: "Max views exceeded" }, { status: 404 });
+        return NextResponse.json(
+          { error: "Max views exceeded" },
+          { status: 404 }
+        );
       }
       await redis.decr(`views:${id}`);
       remainingViews -= 1;
@@ -304,6 +307,9 @@ export async function GET(
     });
   } catch (err) {
     console.error("GET ERROR:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
