@@ -60,4 +60,4 @@ lib/
 ---
 **Made with VScode GitHub vercel** | Next.js 15 + Upstash Redis
 
-
+**vercel deployment
