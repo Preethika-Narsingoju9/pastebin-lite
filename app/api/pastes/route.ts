@@ -129,7 +129,7 @@
 //     const body = await req.json();
 //     const { content, ttl_seconds, max_views } = body;
 
-//     // VALIDATION
+//      
 //     if (!content || typeof content !== "string" || content.trim().length === 0) {
 //       return NextResponse.json({ error: "Content is required" }, { status: 400 });
 //     }
@@ -143,7 +143,7 @@
 //     const id = "paste-" + Date.now();
 //     const nowMs = Date.now();
     
-//     // FIX: Store NUMBER or null properly
+//  
 //     const remainingViews = max_views ? Number(max_views) : null;
     
 //     await savePaste(id, {
@@ -171,7 +171,7 @@ import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 import { nanoid } from "nanoid";
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
     const body = await request.json();
 
